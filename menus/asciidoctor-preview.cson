@@ -1,0 +1,22 @@
+# See https://atom.io/docs/latest/creating-a-package#menus for more details
+'context-menu':
+  'atom-text-editor': [
+    {
+      'label': 'Toggle asciidoctor-preview'
+      'command': 'asciidoctor-preview:toggle'
+    }
+  ]
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'asciidoctor-preview'
+      'submenu': [
+        {
+          'label': 'Toggle'
+          'command': 'asciidoctor-preview:toggle'
+        }
+      ]
+    ]
+  }
+]

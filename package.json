@@ -1,0 +1,16 @@
+{
+  "name": "asciidoctor-preview",
+  "main": "./lib/asciidoctor-preview",
+  "version": "0.0.0",
+  "description": "A short description of your package",
+  "activationCommands": {
+    "atom-workspace": "asciidoctor-preview:toggle"
+  },
+  "repository": "https://github.com/atom/asciidoctor-preview",
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "dependencies": {
+  }
+}
