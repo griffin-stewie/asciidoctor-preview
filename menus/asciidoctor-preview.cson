@@ -13,7 +13,7 @@
       'label': 'asciidoctor-preview'
       'submenu': [
         {
-          'label': 'Toggle'
+          'label': 'Toggle Preview'
           'command': 'asciidoctor-preview:toggle'
         }
       ]

@@ -1,0 +1,263 @@
+= Asciidoc で機能仕様書を作ろう
+:author: 図子達也
+:orgname: Fenrir
+:revnumber: v1.0
+:revdate: 2015/01/09
+:doctype: book
+:title-logo: sample-title-logo.jpg
+// Settings:
+:compat-mode:
+:experimental:
+:icons: font
+:listing-caption: Listing
+:sectnums:
+:toc:
+:toclevels: 4
+ifdef::backend-pdf[]
+:pagenums:
+endif::[]
+
+== メモ
+
+=== 書こうと思う内容羅列
+
+* Asciidoc の説明
+* Markdown との違い
+* Asciidoc でよく使うと思われる記法紹介
+** ヘッダ
+** リスト
+** 改行
+** コード
+*** シンタックスハイライト
+** 引用
+** footnote
+** tips, warning, IMPORTANT, Caution, Note
+** ドキュメント間リンク
+* エディタ環境
+* Asciidoc で PDF を生成する方法
+** ドキュメント先頭に書くmeta情報の書き方
+* Asciidoc で PDF を生成するに当たってのカスタマイズ
+* テキスト以外のコンテンツ表示
+** plantuml
+** Blockdiag
+** Graphviz
+
+== Asciidoc とは
+
+Markdown は Github や Qiita など現代のエンジニアにとても馴染みのある Web サービスでも使われている軽量マークアップ言語の1つです。Asciidoc も同様に軽量マークアップ言語の1つです。アメリカオライリー社の電子書籍の執筆マークアップ言語としても採用されています。Github や GitLab も Asciidoc 形式に対応されており Wiki や README が書けます。git user manual も Asciidoc で書かれています。Asciidoc は以下のようなフォーマットへ変換可能です。
+
+* DocBook
+* PDF
+* TeX
+* manpage
+
+== Markdown との違い
+
+Markdown は E-mail で使用されるようなプレーンテキストでの装飾をベースにプレーンテキストでも読みやすい軽量マークアップ言語として誕生しています。それ故にざっくりとした構造化文書を作成するにはシンプルで書きやすいのですが、細かい装飾といった部分においては記法が充実していません。そういったこともあり各種 Web サービスプロバイダが独自の拡張を行っている状況です。
+それに対して Asciidoc では Markdown と比較してプレーンテキストでの可読性が少し落ちるように感じますが遜色ない程度で Markdown よりも多彩な装飾がサポートされています。特に仕様書のようなドキュメント作成の場合には以下のような機能は Markdown よりも便利です。
+
+* tips, warning, IMPORTANT, Caution, Note などのスタイル指定
+* 画像の配置や表示サイズの指定
+
+=== ツールと拡張機能の充実
+
+Markdown から PDF を作成するのには Pandoc 核に独自のフィルタースクリプトや Rake ファイルを駆使してさまざまな機能を拡張してきました。Asciidoc には Asciidoctor という Ruby 製の変換ツールがあります。また、このツールを拡張する機能もいくつか提供されています。そのなかの1つに PlantUML や Graphviz を Asciidoc 中に直接書いて出力する機能があります。仕様書のようなドキュメント作成においてやこれらの作図機能を活用したいシチュエーションは少くないでしょう。
+
+== Asciidoc から
+
+== inline で plantuml が書ける
+
+```
+[plantuml, diagram-classes, svg]
+....
+class BlockProcessor
+class DiagramBlock
+class DitaaBlock
+class PlantUmlBlock
+
+BlockProcessor <|-- DiagramBlock
+DiagramBlock <|-- DitaaBlock
+DiagramBlock <|-- PlantUmlBlock
+....
+```
+
+↑ のように書くと ↓ このように svg で出力した plantuml の図が表示されます
+
+[plantuml, diagram-classes, svg]
+....
+class BlockProcessor
+class DiagramBlock
+class DitaaBlock
+class PlantUmlBlock
+
+BlockProcessor <|-- DiagramBlock
+DiagramBlock <|-- DitaaBlock
+DiagramBlock <|-- PlantUmlBlock
+....
+
+
+```
+[graphviz, "dot_example", "svg"]
+----
+graph ethane {
+    C_0 -- H_0 [type=s];
+    C_0 -- H_1 [type=s];
+    C_0 -- H_2 [type=s];
+    C_0 -- C_1 [type=s];
+    C_1 -- H_3 [type=s];
+    C_1 -- H_4 [type=s];
+    C_1 -- H_5 [type=s];
+}
+----
+```
+
+↑ のように書くと ↓ このように svg で出力した graphviz の図が表示されます
+
+[graphviz, "dot_example", "svg"]
+----
+graph ethane {
+    C_0 -- H_0 [type=s];
+    C_0 -- H_1 [type=s];
+    C_0 -- H_2 [type=s];
+    C_0 -- C_1 [type=s];
+    C_1 -- H_3 [type=s];
+    C_1 -- H_4 [type=s];
+    C_1 -- H_5 [type=s];
+}
+----
+
+```
+[blockdiag, "blockdiag_example", "png"]
+----
+blockdiag admin {
+    // Set M17N text using label property.
+    A [label = "起"];
+    B [label = "承"];
+    C [label = "転"];
+    D [label = "結"];
+
+    A -> B -> C -> D;
+
+    // Use M17N text directly (need to quote).
+    春 -> 夏 -> 秋 -> 冬;
+
+    // Use M17N text including symbol characters (need to quote).
+    "春は 曙" -> "夏 = 夜" -> "秋.夕暮れ" -> "冬 & つとめて";
+}
+----
+```
+
+↑ のように書くと ↓ このように png で出力した blockdiag の図が表示されます
+
+[blockdiag, "blockdiag_example", "png"]
+----
+blockdiag admin {
+    // Set M17N text using label property.
+    A [label = "起"];
+    B [label = "承"];
+    C [label = "転"];
+    D [label = "結"];
+
+    A -> B -> C -> D;
+
+    // Use M17N text directly (need to quote).
+    春 -> 夏 -> 秋 -> 冬;
+
+    // Use M17N text including symbol characters (need to quote).
+    "春は 曙" -> "夏 = 夜" -> "秋.夕暮れ" -> "冬 & つとめて";
+}
+----
+
+
+```
+[actdiag, "actdiag_example", "png"]
+----
+actdiag {
+    write -> convert -> image
+
+    lane user {
+        label = "User"
+        write [label = "Writing reST"];
+        image [label = "Get diagram IMAGE"];
+    }
+    lane actdiag {
+        convert [label = "Convert reST to Image"];
+    }
+}
+----
+```
+
+↑ のように書くと ↓ このように png で出力した actdiag の図が表示されます
+[actdiag, "actdiag_example", "png"]
+----
+actdiag {
+    write -> convert -> image
+
+    lane user {
+        label = "User"
+        write [label = "Writing reST"];
+        image [label = "Get diagram IMAGE"];
+    }
+    lane actdiag {
+        convert [label = "Convert reST to Image"];
+    }
+}
+----
+
+CAUTION: PlantUML 等の各種作図ツールは別途インストールが必要
+
+== できた
+
+[source,ruby]
+----
+puts "Hello, World!"
+def say something
+   puts something
+end
+----
+
+== 引用
+
+引用は
+
+== footnote
+
+
+== tips, warning, IMPORTANT, Caution, Note
+
+....
+CAUTION: 注意してくださいね
+....
+
+↑ のように書くと ↓ このように
+
+CAUTION: 注意してくださいね
+
+....
+.これはオプションテキスト
+NOTE: これはNOTEのサンプルです。
+ここにも一言二言かけます。
+....
+
+↑ のように書くと ↓ このように
+
+.これはオプションテキスト
+NOTE: これはNOTEのサンプルです。
+ここにも一言二言かけます。
+
+....
+IMPORTANT: ここ重要ですよ!
+....
+
+↑ のように書くと ↓ このように
+
+IMPORTANT: ここ重要ですよ!
+
+
+....
+WARNING: 警告
+....
+
+↑ のように書くと ↓ このように
+
+WARNING: 警告
