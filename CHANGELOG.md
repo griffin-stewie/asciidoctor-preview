@@ -1,3 +1,6 @@
+## 0.1.2 - fix error module version mismatch
+* fix error module version mismatch
+
 ## 0.1.1 - fix deprecated calls
 * fix deprecated calls
 

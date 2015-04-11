@@ -33,12 +33,6 @@ module.exports =
       type: 'string'
       default: '/usr/local/bin/'
       order: 41
-    renderOnSaveOnly:
-      title: 'Update on save'
-      description: 'Update preveiw on save'
-      type: 'boolean'
-      default: false
-      order: 50
     grammars:
       title: 'Grammars'
       type: 'array'
@@ -47,6 +41,14 @@ module.exports =
         'text.plain'
         'text.plain.null-grammar'
       ]
+      order: 42
+    renderOnSaveOnly:
+      title: 'Update on save'
+      description: 'Update preveiw on save'
+      type: 'boolean'
+      default: false
+      order: 50
+
 
   activate: (state) ->
     atom.commands.add 'atom-workspace',

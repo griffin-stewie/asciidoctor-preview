@@ -1,7 +1,7 @@
 {
   "name": "asciidoctor-preview",
   "main": "./lib/asciidoctor-preview",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Show an HTML preview for the AsciiDoc content by Asciidoctor in the current editor",
   "repository": "https://github.com/griffin-stewie/asciidoctor-preview",
   "license": "MIT",
@@ -12,12 +12,12 @@
       "atom-space-pen-views": "^2.0.0",
       "fs-plus": "^2.5.0",
       "grim": "^1.0.0",
-      "pathwatcher": "^4.1.0",
+      "pathwatcher": "^4.4.0",
       "temp": "^0.6.0",
       "fs-extra": "^0.15.0",
       "underscore-plus": "^1.0.0",
       "wrench": "^1.5.8",
       "mustache": "^1.1.0",
-      "cheerio": "0.15.0"
+      "cheerio": "^0.19.0"
   }
 }
