@@ -1,3 +1,6 @@
+## 0.1.3 - fix deprecated method
+* Use getActiveTextEditor instead getActiveEditor #1
+
 ## 0.1.2 - fix error module version mismatch
 * fix error module version mismatch
 
