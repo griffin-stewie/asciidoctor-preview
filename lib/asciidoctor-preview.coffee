@@ -104,7 +104,7 @@ module.exports =
         previousActivePane.activate()
 
   checkFile: ->
-    editor = atom.workspace.getActiveEditor()
+    editor = atom.workspace.getActiveTextEditor()
     return unless editor?
 
     grammars = atom.config.get('asciidoc-preview.grammars') ? []
