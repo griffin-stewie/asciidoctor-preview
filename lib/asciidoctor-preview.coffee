@@ -107,6 +107,6 @@ module.exports =
     editor = atom.workspace.getActiveTextEditor()
     return unless editor?
 
-    grammars = atom.config.get('asciidoc-preview.grammars') ? []
+    grammars = atom.config.get('asciidoctor-preview.grammars') ? []
     return unless editor.getGrammar().scopeName in grammars
     editor
