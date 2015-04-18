@@ -1,3 +1,6 @@
+## 0.1.4 - fix toggling preview
+* fix configuration target "asciidoc-preview" to "asciidoctor-preview" #1
+
 ## 0.1.3 - fix deprecated method
 * Use getActiveTextEditor instead getActiveEditor #1
 
