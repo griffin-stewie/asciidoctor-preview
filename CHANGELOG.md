@@ -1,3 +1,6 @@
+## 0.1.5 - update dependencies
+* update dependencies
+
 ## 0.1.4 - fix toggling preview
 * fix configuration target "asciidoc-preview" to "asciidoctor-preview" #1
 
