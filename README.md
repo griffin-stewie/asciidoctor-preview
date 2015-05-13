@@ -41,3 +41,13 @@ This package needs set up commands path. `/usr/local/bin/` is default.
 3. You can see the preview on your right pane.
 
 You can use `Update on save` option from Settings If you want to run update preview each time a file is saved.
+
+## Advanced usage
+
+### How to use another processer
+
+You can change commnad to use `asciidoc` instead of `asciidoctor` like this
+
+```
+asciidoc -b html5 -d book -a lang=ja -o {{{tempHTMLPath}}} {{{tempSourcePath}}}
+```
