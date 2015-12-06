@@ -56,7 +56,7 @@ runAsciidoctor = (tempSourcePath, tempHTMLPath) =>
   # debug.log pathForCommands
 
 
-  @exec command, {"env": {"PATH": pathForCommands}}, (error, stdout, stderr) =>
+  @exec command, {"env": {"HOME": process.env.HOME, "PATH": pathForCommands}}, (error, stdout, stderr) =>
     debug.log "Script executed"
     console.log stdout
     console.log stderr

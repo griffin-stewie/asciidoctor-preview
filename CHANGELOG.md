@@ -1,3 +1,6 @@
+## 0.1.7 - fix Ruby gem PATH problem
+* fix Ruby gem PATH problem. Now adds HOME variable when executes asciidoctor command.
+
 ## 0.1.6 - update dependencies
 * update dependencies
 
