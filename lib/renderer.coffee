@@ -29,12 +29,12 @@ exports.toDOMFragment = (text='', filePath, callback) ->
   @exec = require('child_process').exec
   @callback = callback
   temp.track()
-  temp.mkdir 'asciidoctor', (err, dirPath) =>
+  temp.mkdir 'asciidoctor', (err, dirPath) ->
     debug.log err
     debug.log "テンプディレクトリ " + dirPath
     tempFilePath = path.join dirPath, path.basename(filePath)
     tempHTMLPath = path.join dirPath, "temp.html"
-    fsex.copy filePath, tempFilePath, (err) =>
+    fsex.copy filePath, tempFilePath, (err) ->
       debug.log tempFilePath
       debug.log tempHTMLPath
       runAsciidoctor(path.dirname(filePath), filePath, tempHTMLPath)
@@ -149,7 +149,7 @@ resolveImagePaths = (html, filePath) =>
 
 
 tokenizeCodeBlocks = (htmlstr) ->
-  o = cheerio.load(htmlstr);
+  o = cheerio.load(htmlstr)
 
   if fontFamily = atom.config.get('editor.fontFamily')
     o.find('code').css('font-family', fontFamily)
