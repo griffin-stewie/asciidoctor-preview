@@ -1,3 +1,6 @@
+## 0.2.0 - fix inculde files in asciidoc document
+* now I use `--base-dir` option.
+
 ## 0.1.7 - fix Ruby gem PATH problem
 * fix Ruby gem PATH problem. Now adds HOME variable when executes asciidoctor command.
 
