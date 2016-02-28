@@ -37,15 +37,16 @@ exports.toDOMFragment = (text='', filePath, callback) ->
     fsex.copy filePath, tempFilePath, (err) =>
       debug.log tempFilePath
       debug.log tempHTMLPath
-      runAsciidoctor(tempFilePath, tempHTMLPath)
+      runAsciidoctor(path.dirname(filePath), filePath, tempHTMLPath)
 
-runAsciidoctor = (tempSourcePath, tempHTMLPath) =>
+runAsciidoctor = (baseDirPath, filePath, tempHTMLPath) =>
 
-  commandTemplate = atom.config.get 'asciidoctor-preview.command' ? "/usr/local/bin/asciidoctor --safe-mode unsafe -a lang=ja -b html5 -d book -r asciidoctor-diagram -o {{{tempHTMLPath}}} {{{tempSourcePath}}}"
+  commandTemplate = atom.config.get 'asciidoctor-preview.command' ? "/usr/local/bin/asciidoctor --safe-mode unsafe -a lang=ja -b html5 -d book -r asciidoctor-diagram --base-dir {{{baseDirPath}}} -o {{{tempHTMLPath}}} {{{filePath}}}"
   debug.log commandTemplate
   command = mustache.render commandTemplate,
-    tempSourcePath: tempSourcePath
+    baseDirPath: baseDirPath
     tempHTMLPath: tempHTMLPath
+    filePath: filePath
 
   debug.log command
   # debug.log process.env

@@ -1,7 +1,7 @@
 {
   "name": "asciidoctor-preview",
   "main": "./lib/asciidoctor-preview",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "Show an HTML preview for the AsciiDoc content by Asciidoctor in the current editor",
   "repository": "https://github.com/griffin-stewie/asciidoctor-preview",
   "license": "MIT",

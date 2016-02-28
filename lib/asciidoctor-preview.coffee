@@ -23,9 +23,9 @@ module.exports =
   config:
     command:
       title: 'Command'
-      description: 'You can use {{{tempHTMLPath}}}, {{{tempSourcePath}}}'
+      description: 'You can use {{{tempHTMLPath}}}, {{{baseDirPath}}}, {{{filePath}}}'
       type: 'string'
-      default: "asciidoctor --safe-mode unsafe -a lang=ja -b html5 -d book -r asciidoctor-diagram -o {{{tempHTMLPath}}} {{{tempSourcePath}}}"
+      default: "asciidoctor --safe-mode unsafe -a lang=ja -b html5 -d book -r asciidoctor-diagram --base-dir {{{baseDirPath}}} -o {{{tempHTMLPath}}} {{{filePath}}}"
       order: 40
     path:
       title: 'PATH'
