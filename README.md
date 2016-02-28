@@ -24,10 +24,18 @@ also install other extensions like [asciidoctor/asciidoctor-diagram](https://git
 Default command is
 
 ```
-asciidoctor --safe-mode unsafe -a lang=ja -b html5 -d book -r asciidoctor-diagram -o {{{tempHTMLPath}}} {{{tempSourcePath}}}
+asciidoctor --safe-mode unsafe -a lang=ja -b html5 -d book -r asciidoctor-diagram --base-dir {{{baseDirPath}}} -o {{{tempHTMLPath}}} {{{filePath}}}
 ```
 
-You can change parameters for `asciidoctor` but you need `{{{tempHTMLPath}}}` as output and `{{{tempSourcePath}}}` as input.
+You can change parameters for `asciidoctor` but you need `{{{tempHTMLPath}}}` as output and `{{{filePath}}}` as input, `{{{baseDirPath}}}` as base directory.
+
+Default values
+- `--baseDirPath`
+    - preview documents dirname.
+- `-o`    
+    - generated html file in temp dir.
+- argument
+    - preview documents    
 
 
 ### Set Up Path
@@ -49,5 +57,5 @@ You can use `Update on save` option from Settings If you want to run update prev
 You can change commnad to use `asciidoc` instead of `asciidoctor` like this
 
 ```
-asciidoc -b html5 -d book -a lang=ja -o {{{tempHTMLPath}}} {{{tempSourcePath}}}
+asciidoc -b html5 -d book -a lang=ja -o {{{tempHTMLPath}}} {{{filePath}}}
 ```
