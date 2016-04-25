@@ -1,3 +1,6 @@
+## 0.2.1 - update dependencies
+* update dependencies
+
 ## 0.2.0 - fix inculde files in asciidoc document
 * now I use `--base-dir` option.
 
