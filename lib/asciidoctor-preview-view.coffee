@@ -1,30 +1,51 @@
-path = require 'path'
-
+fs                    = require 'fs'
 {Emitter, Disposable, CompositeDisposable} = require 'atom'
-{$, $$$, ScrollView} = require 'atom-space-pen-views'
-Grim = require 'grim'
-_ = require 'underscore-plus'
-fs = require 'fs-plus'
-{File} = require 'pathwatcher'
-
-renderer = require './renderer'
-debug = require './debuglog'
+{$, $$$, ScrollView}  = require 'atom-space-pen-views'
+path                  = require 'path'
+os                    = require 'os'
+renderer              = require './renderer'
 
 module.exports =
-class AsciidoctorPreviewView extends ScrollView
-  @content: ->
-    @div class: 'asciidoctor-preview native-key-bindings', tabindex: -1
+class AtomHtmlPreviewView extends ScrollView
+  atom.deserializers.add(this)
 
-  constructor: ({@editorId, @filePath}) ->
+  editorSub           : null
+  onDidChangeTitle    : -> new Disposable()
+  onDidChangeModified : -> new Disposable()
+
+  @deserialize: (state) ->
+    new AtomHtmlPreviewView(state)
+
+  @content: ->
+    @div class: 'asciidoctor-preview native-key-bindings', tabindex: -1, =>
+      style = 'z-index: 2; padding: 2em;'
+      @div class: 'show-error', style: style, 'Previewing AsciiDoc Failed'
+      @div class: 'show-loading', style: style, "Loading AsciiDoc\u2026"
+
+  constructor: ({@editorId, filePath}) ->
     super
-    @emitter = new Emitter
     @disposables = new CompositeDisposable
-    @scrollPotision = 0
+    @emitter = new Emitter
+    if @editorId?
+      @resolveEditor(@editorId)
+      @tmpPath = @getPath() # after resolveEditor
+    else
+      if atom.workspace?
+        @subscribeToFilePath(filePath)
+      else
+        # @subscribe atom.packages.once 'activated', =>
+        atom.packages.onDidActivatePackage =>
+          @subscribeToFilePath(filePath)
+
+    # Disable pointer-events while resizing
+    handles = $("atom-pane-resize-handle")
+    handles.on 'mousedown', => @onStartedResize()
 
   attached: ->
+
     return if @isAttached
     @isAttached = true
-
+    console.log "attached"
     if @editorId?
       @resolveEditor(@editorId)
     else
@@ -34,198 +55,194 @@ class AsciidoctorPreviewView extends ScrollView
         @disposables.add atom.packages.onDidActivateAll =>
           @subscribeToFilePath(@filePath)
 
+  # subscribeToFilePath: (filePath) ->
+  #   @file = new File(filePath)
+  #   @emitter.emit 'did-change-title'
+  #   @handleEvents()
+  #   @renderAsciidoc()
+
+  onStartedResize: ->
+    @css 'pointer-events': 'none'
+    document.addEventListener 'mouseup', @onStoppedResizing.bind this
+
+  onStoppedResizing: ->
+    @css 'pointer-events': 'all'
+    document.removeEventListener 'mouseup', @onStoppedResizing
+
   serialize: ->
-    deserializer: 'AsciidoctorPreviewView'
-    filePath: @getPath()
-    editorId: @editorId
+    deserializer : 'AsciidoctorPreviewView'
+    filePath     : @getPath()
+    editorId     : @editorId
 
   destroy: ->
-    @disposables.dispose()
-
-  onDidChangeTitle: (callback) ->
-    @emitter.on 'did-change-title', callback
-
-  onDidChangeModified: (callback) ->
-    # No op to suppress deprecation warning
-    new Disposable
-
-  onDidChangeAsciiDoc: (callback) ->
-    @emitter.on 'did-change-asciidoc', callback
-
-  on: (eventName) ->
-    if eventName is 'asciidoctor-preview:asciidoc-changed'
-      Grim.deprecate("Use AsciidoctorPreviewView::onDidChangeAsciiDoc instead of the 'asciidoctor-preview:asciidoc-changed' jQuery event")
-    super
+    # @unsubscribe()
+    if editorSub?
+      @editorSub.dispose()
 
   subscribeToFilePath: (filePath) ->
-    @file = new File(filePath)
-    @emitter.emit 'did-change-title'
+    console.log "subscribeToFilePath"
+    @trigger 'title-changed'
     @handleEvents()
-    @renderAsciidoc()
+    @renderHTML()
 
   resolveEditor: (editorId) ->
+    console.log "resolveEditor"
     resolve = =>
       @editor = @editorForId(editorId)
 
       if @editor?
-        @emitter.emit 'did-change-title' if @editor?
+        @trigger 'title-changed' if @editor?
         @handleEvents()
-        @renderAsciidoc()
+        @renderHTML()
       else
         # The editor this preview was created for has been closed so close
         # this preview since a preview cannot be rendered without an editor
-        @parents('.pane').view()?.destroyItem(this)
+        atom.workspace?.paneForItem(this)?.destroyItem(this)
 
     if atom.workspace?
       resolve()
     else
-      @disposables.add atom.packages.onDidActivateAll(resolve)
+      # @subscribe atom.packages.once 'activated', =>
+      atom.packages.onDidActivatePackage =>
+        resolve()
+        @renderHTML()
 
   editorForId: (editorId) ->
     for editor in atom.workspace.getTextEditors()
       return editor if editor.id?.toString() is editorId.toString()
     null
 
-  handleEvents: ->
-    @disposables.add atom.grammars.onDidAddGrammar =>
-      debug.log "!!!!!!!!!!!!!!!!!!!!! onDidAddGrammar" if global.enableDebugOutput
-      @debouncedRenderAsciidoc ?= _.debounce((=> @renderAsciidoc()), 250)
-      @debouncedRenderAsciidoc()
+  handleEvents: =>
+    contextMenuClientX = 0
+    contextMenuClientY = 0
 
-    @disposables.add atom.grammars.onDidUpdateGrammar _.debounce((=> @renderAsciidoc()), 250)
+    @on 'contextmenu', (event) ->
+      contextMenuClientY = event.clientY
+      contextMenuClientX = event.clientX
 
     atom.commands.add @element,
-      'core:move-up': =>
-        @scrollUp()
-      'core:move-down': =>
-        @scrollDown()
-      'core:save-as': (event) =>
-        event.stopPropagation()
-        @saveAs()
-      'core:copy': (event) =>
-        event.stopPropagation() if @copyToClipboard()
-      'asciidoctor-preview:zoom-in': =>
-        zoomLevel = parseFloat(@css('zoom')) or 1
-        @css('zoom', zoomLevel + .1)
-      'asciidoctor-preview:zoom-out': =>
-        zoomLevel = parseFloat(@css('zoom')) or 1
-        @css('zoom', zoomLevel - .1)
-      'asciidoctor-preview:reset-zoom': =>
-        @css('zoom', 1)
+      'asciidoctor-preview:open-devtools': =>
+        @webview.openDevTools()
+      'asciidoctor-preview:inspect': =>
+        @webview.inspectElement(contextMenuClientX, contextMenuClientY)
+      'asciidoctor-preview:print': =>
+        @webview.print()
+
 
     changeHandler = =>
-      @renderAsciidoc()
-
-      # TODO: Remove paneForURI call when ::paneForItem is released
-      pane = atom.workspace.paneForItem?(this) ? atom.workspace.paneForURI(@getURI())
+      @renderHTML()
+      pane = atom.workspace.paneForURI(@getURI())
       if pane? and pane isnt atom.workspace.getActivePane()
         pane.activateItem(this)
 
-    if @file?
-      @disposables.add @file.onDidChange(changeHandler)
-    else if @editor?
-      # @disposables.add @editor.getBuffer().onDidStopChanging =>
-      #   changeHandler() if atom.config.get 'asciidoctor-preview.renderOnSaveOnly'
+    @editorSub = new CompositeDisposable
+
+    if @editor?
       @disposables.add @editor.onDidChangePath => @emitter.emit 'did-change-title'
       @disposables.add @editor.getBuffer().onDidSave =>
         changeHandler() if atom.config.get 'asciidoctor-preview.renderOnSaveOnly'
       @disposables.add @editor.getBuffer().onDidReload =>
         changeHandler() if atom.config.get 'asciidoctor-preview.renderOnSaveOnly'
 
-    @disposables.add atom.config.onDidChange 'asciidoctor-preview.breakOnSingleNewline', changeHandler
-
-  renderAsciidoc: ->
-    @scrollPotision = @scrollTop()
-    debug.log "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! renderAsciidoc" if global.enableDebugOutput
+  renderHTML: ->
     @showLoading()
-    if @file?
-      @file.read().then (contents) => @renderAsciiDocText(contents)
-    else if @editor?
-      @renderAsciiDocText(@editor.getText())
+    if @editor?
+      if not atom.config.get("asciidoctor-preview.triggerOnSave") && @editor.getPath()?
+        @save(@renderHTMLCode)
+      else
+        @renderHTMLCode()
 
-  renderAsciiDocText: (text) ->
-    renderer.toDOMFragment text, @getPath(), (error, domFragment) =>
-      debug.log "Callback renderer.toDOMFragment error:#{error}, domFragment:#{domFragment}"
+  save: (callback) ->
+    console.log "save called"
+    # Temp file path
+    outPath = path.resolve path.join(os.tmpdir(), @editor.getTitle() + ".html")
+    out = ""
+    fileEnding = @editor.getTitle().split(".").pop()
+
+    if atom.config.get("asciidoctor-preview.enableMathJax")
+      out += """
+      <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['\\\\f$','\\\\f$']]},
+      menuSettings: {zoom: 'Click'}
+      });
+      </script>
+      <script type="text/javascript"
+      src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+      </script>
+      """
+
+    if atom.config.get("asciidoctor-preview.preserveWhiteSpaces") and fileEnding in atom.config.get("asciidoctor-preview.fileEndings")
+      # Enclose in <pre> statement to preserve whitespaces
+      out += """
+      <style type="text/css">
+      body { white-space: pre; }
+      </style>
+      """
+    else
+      # Add base tag; allow relative links to work despite being loaded
+      # as the src of an webview
+      out += "<base href=\"" + @getPath() + "\">"
+
+    out += @editor.getText()
+
+    @tmpPath = outPath
+    fs.writeFile outPath, out, =>
+      try
+        @renderHTMLCode()
+      catch error
+        @showError error
+
+  renderHTMLCode: () ->
+    text = @editor.getText()
+    renderer.toHTML text, @getPath(), (error, tempHTMLPath) =>
+      console.log "Callback renderer.toDOMFragment error:#{error}, tempHTMLPath:#{tempHTMLPath}"
       if error
         @showError(error)
       else
-        @loading = false
-        @empty()
-        @append(domFragment)
-        @scrollTop(@scrollPotision)
-        @scrollPotision = 0
         @emitter.emit 'did-change-asciidoc'
         @originalTrigger('asciidoctor-preview:asciidoc-changed')
+        unless @webview?
+          webview = document.createElement("webview")
+          # Fix from @kwaak (https://github.com/webBoxio/asciidoctor-preview/issues/1/#issuecomment-49639162)
+          # Allows for the use of relative resources (scripts, styles)
+          webview.setAttribute("sandbox", "allow-scripts allow-same-origin")
+          @webview = webview
+          @append $ webview
+
+        @webview.src = tempHTMLPath
+        try
+          @find('.show-error').hide()
+          @find('.show-loading').hide()
+          @webview.reload()
+
+        catch error
+          null
+
+        # @trigger('asciidoctor-preview:html-changed')
+        atom.commands.dispatch 'asciidoctor-preview', 'html-changed'
 
   getTitle: ->
-    if @file?
-      "#{path.basename(@getPath())} Preview"
-    else if @editor?
+    if @editor?
       "#{@editor.getTitle()} Preview"
     else
-      "AsciiDoc Preview"
-
-  getIconName: ->
-    "eye"
+      "HTML Preview"
 
   getURI: ->
-    if @file?
-      "asciidoctor-preview://#{@getPath()}"
-    else
-      "asciidoctor-preview://editor/#{@editorId}"
+    "asciidoctor-preview://editor/#{@editorId}"
 
   getPath: ->
-    if @file?
-      @file.getPath()
-    else if @editor?
+    if @editor?
       @editor.getPath()
-
-  getGrammar: ->
-    @editor?.getGrammar()
 
   showError: (result) ->
     failureMessage = result?.message
 
-    @html $$$ ->
+    @find('.show-error')
+    .html $$$ ->
       @h2 'Previewing AsciiDoc Failed'
       @h3 failureMessage if failureMessage?
+    .show()
 
   showLoading: ->
-    @loading = true
-    @html $$$ ->
-      @div class: 'asciidoc-spinner', 'Loading AsciiDoc\u2026'
-
-  copyToClipboard: ->
-    return false if @loading
-
-    selection = window.getSelection()
-    selectedText = selection.toString()
-    selectedNode = selection.baseNode
-
-    # Use default copy event handler if there is selected text inside this view
-    return false if selectedText and selectedNode? and (@[0] is selectedNode or $.contains(@[0], selectedNode))
-
-    atom.clipboard.write(@[0].innerHTML)
-    true
-
-  saveAs: ->
-    return if @loading
-
-    filePath = @getPath()
-    if filePath
-      filePath += '.html'
-    else
-      filePath = 'untitled.md.html'
-      if projectPath = atom.project.getPath()
-        filePath = path.join(projectPath, filePath)
-
-    if htmlFilePath = atom.showSaveDialogSync(filePath)
-      # Hack to prevent encoding issues
-      # https://github.com/atom/asciidoctor-preview/issues/96
-      html = @[0].innerHTML.split('').join('')
-
-      fs.writeFileSync(htmlFilePath, html)
-      atom.workspace.open(htmlFilePath)
-
-  isEqual: (other) ->
-    @[0] is other?[0] # Compare DOM elements
+    @find('.show-loading').show()
