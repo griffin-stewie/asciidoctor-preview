@@ -131,7 +131,7 @@ class AtomHtmlPreviewView extends ScrollView
 
     changeHandler = =>
       @renderHTML()
-      pane = atom.workspace.paneForURI(@getURI())
+      pane = atom.workspace.paneForItem?(this) ? atom.workspace.paneForURI(@getURI())
       if pane? and pane isnt atom.workspace.getActivePane()
         pane.activateItem(this)
 
