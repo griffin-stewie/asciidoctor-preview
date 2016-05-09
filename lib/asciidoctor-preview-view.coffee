@@ -207,6 +207,7 @@ class AtomHtmlPreviewView extends ScrollView
           # Fix from @kwaak (https://github.com/webBoxio/asciidoctor-preview/issues/1/#issuecomment-49639162)
           # Allows for the use of relative resources (scripts, styles)
           webview.setAttribute("sandbox", "allow-scripts allow-same-origin")
+          webview.setAttribute("class", "webview")
           @webview = webview
           @append $ webview
 
@@ -214,6 +215,7 @@ class AtomHtmlPreviewView extends ScrollView
         try
           @find('.show-error').hide()
           @find('.show-loading').hide()
+          @find('.webview').show()
           @webview.reload()
 
         catch error
@@ -237,7 +239,8 @@ class AtomHtmlPreviewView extends ScrollView
 
   showError: (result) ->
     failureMessage = result?.message
-
+    @find('.webview').hide()
+    @find('.show-loading').hide()
     @find('.show-error')
     .html $$$ ->
       @h2 'Previewing AsciiDoc Failed'
@@ -245,4 +248,6 @@ class AtomHtmlPreviewView extends ScrollView
     .show()
 
   showLoading: ->
+    @find('.webview').hide()
+    @find('.show-error').hide()
     @find('.show-loading').show()
