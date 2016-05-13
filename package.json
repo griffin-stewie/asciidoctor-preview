@@ -1,7 +1,7 @@
 {
   "name": "asciidoctor-preview",
   "main": "./lib/asciidoctor-preview",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Show an HTML preview for the AsciiDoc content by Asciidoctor in the current editor",
   "repository": "https://github.com/griffin-stewie/asciidoctor-preview",
   "license": "MIT",
@@ -12,7 +12,6 @@
       "atom-space-pen-views": "^2.2.0",
       "fs-plus": "^2.8.2",
       "grim": "^2.0.0",
-      "pathwatcher": "^6.5.0",
       "temp": "^0.8.3",
       "fs-extra": "^0.28.0",
       "underscore-plus": "^1.6.6",
