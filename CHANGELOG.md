@@ -1,3 +1,8 @@
+## 0.3.0 - fix :toc: left issue
+* fix :toc: left shows misplaced table of contents #10
+* ToC link works
+
+
 ## 0.2.3 - remove unused dependencies
 * remove unused dependencies
 

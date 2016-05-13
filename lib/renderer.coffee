@@ -39,6 +39,23 @@ exports.toDOMFragment = (text='', filePath, callback) ->
       debug.log tempHTMLPath
       runAsciidoctor(path.dirname(filePath), filePath, tempHTMLPath)
 
+exports.toHTML = (text='', filePath, callback) ->
+  debug.log "Renderer Executed"
+  debug.log filePath
+  @originalFilePath = filePath
+  @exec = require('child_process').exec
+  @callback = callback
+  temp.track()
+  temp.mkdir 'asciidoctor', (err, dirPath) ->
+    debug.log err
+    debug.log "テンプディレクトリ " + dirPath
+    tempFilePath = path.join dirPath, path.basename(filePath)
+    tempHTMLPath = path.join dirPath, "temp.html"
+    fsex.copy filePath, tempFilePath, (err) ->
+      debug.log tempFilePath
+      debug.log tempHTMLPath
+      runAsciidoctor(path.dirname(filePath), filePath, tempHTMLPath)
+
 runAsciidoctor = (baseDirPath, filePath, tempHTMLPath) =>
 
   commandTemplate = atom.config.get 'asciidoctor-preview.command' ? "/usr/local/bin/asciidoctor --safe-mode unsafe -a lang=ja -b html5 -d book -r asciidoctor-diagram --base-dir {{{baseDirPath}}} -o {{{tempHTMLPath}}} {{{filePath}}}"
@@ -77,23 +94,24 @@ runAsciidoctor = (baseDirPath, filePath, tempHTMLPath) =>
     html = removeFontsCSS(html)
     html = removeCSS(html)
     # html = tokenizeCodeBlocks(html)
-    # debug.log html
-    template = document.createElement('template')
-
-    template.innerHTML = html
-    domFragment = template.content.cloneNode(true)
-    @callback(error, domFragment)
+    debug.log html
+    fs.writeFileSync(tempHTMLPath, html)
+    # template = document.createElement('template')
+    #
+    # template.innerHTML = html
+    # domFragment = template.content.cloneNode(true)
+    @callback(error, tempHTMLPath)
 
 
 
 removeFontsCSS = (html) ->
   o = cheerio.load(html)
-  o('link').remove()
+  # o('link').remove()
   o.html()
 
 removeCSS = (html) ->
   o = cheerio.load(html)
-  o('style').remove()
+  # o('style').remove()
   o.html()
 
 sanitize = (html) ->
@@ -137,7 +155,7 @@ resolveImagePaths = (html, filePath) =>
       continue if src.startsWith(packagePath)
 
       if src[0] is '/'
-        unless fsplus.isFileSync(src)
+        unless fs.isFileSync(src)
           img.attr('src', atom.project.getDirectories()[0]?.resolve(src.substring(1)))
       else
         imgPath = path.resolve(path.dirname(filePath), src)
