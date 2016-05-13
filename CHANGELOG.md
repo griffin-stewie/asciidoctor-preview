@@ -1,3 +1,6 @@
+## 0.2.2 - remove unused dependencies
+* remove unused dependencies
+
 ## 0.2.1 - update dependencies
 * update dependencies
 
