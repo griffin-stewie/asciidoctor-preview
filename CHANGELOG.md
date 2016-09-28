@@ -1,3 +1,7 @@
+## 0.3.1 - fix preview height
+* fix preview height size #27
+
+
 ## 0.3.0 - fix :toc: left issue
 * fix :toc: left shows misplaced table of contents #10
 * ToC link works
