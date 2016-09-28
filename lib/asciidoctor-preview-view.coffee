@@ -208,6 +208,7 @@ class AtomHtmlPreviewView extends ScrollView
           # Allows for the use of relative resources (scripts, styles)
           webview.setAttribute("sandbox", "allow-scripts allow-same-origin")
           webview.setAttribute("class", "webview")
+          webview.setAttribute("id", "asciidoctor-previe-webview")
           @webview = webview
           @append $ webview
 
