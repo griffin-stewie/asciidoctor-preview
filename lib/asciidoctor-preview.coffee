@@ -99,7 +99,7 @@ module.exports =
   addPreviewForEditor: (editor) ->
     uri = @uriForEditor(editor)
     previousActivePane = atom.workspace.getActivePane()
-    atom.workspace.open(uri, split: 'right', searchAllPanes: true).done (asciidoctorPreviewView) ->
+    atom.workspace.open(uri, split: 'right', searchAllPanes: true).then (asciidoctorPreviewView) ->
       if isAsciidoctorPreviewView(asciidoctorPreviewView)
         previousActivePane.activate()
 
