@@ -10,12 +10,12 @@
   },
   "dependencies": {
       "atom-space-pen-views": "^2.2.0",
-      "fs-plus": "^2.8.2",
-      "grim": "^2.0.0",
+      "fs-plus": "^2.9.3",
+      "grim": "^2.0.1",
       "temp": "^0.8.3",
-      "fs-extra": "^0.28.0",
+      "fs-extra": "^2.0.0",
       "underscore-plus": "^1.6.6",
-      "mustache": "^2.2.1",
-      "cheerio": "^0.20.0"
+      "mustache": "^2.3.0",
+      "cheerio": "^0.22.0"
   }
 }
