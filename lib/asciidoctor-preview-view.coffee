@@ -76,7 +76,7 @@ class AtomHtmlPreviewView extends ScrollView
 
   destroy: ->
     # @unsubscribe()
-    if editorSub?
+    if @editorSub?
       @editorSub.dispose()
 
   subscribeToFilePath: (filePath) ->
