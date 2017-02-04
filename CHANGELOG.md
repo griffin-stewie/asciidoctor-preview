@@ -1,3 +1,8 @@
+## 0.3.2 - fix issues
+* fix Promise.done is deprecated. #32
+* fix Changes required for upcoming CoffeeScript upgrade. #29
+
+
 ## 0.3.1 - fix preview height
 * fix preview height size #27
 
