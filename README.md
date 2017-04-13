@@ -4,7 +4,7 @@ Preview AsciiDoc using [Asciidoctor](http://asciidoctor.org/ "Asciidoctor | An o
 
 ## Environment
 
-Only support macOS.
+I only support macOS.
 
 ## Installation
 
