@@ -2,6 +2,10 @@
 
 Preview AsciiDoc using [Asciidoctor](http://asciidoctor.org/ "Asciidoctor | An open source implementation of AsciiDoc in Ruby")
 
+## Environment
+
+Only support macOS.
+
 ## Installation
 
 ```
